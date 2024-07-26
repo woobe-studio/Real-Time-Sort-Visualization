@@ -166,7 +166,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
             ),
           ),
           Container(
-            width: 10, // Adjust the width of the separator here
+            width: 20, // Separator width increased to 30
             color: Colors.black,
           ),
           Expanded(
