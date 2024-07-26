@@ -19,7 +19,15 @@ class SortComparisonApp extends StatelessWidget {
       title: 'Sort Comparison',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        brightness: Brightness.light,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      themeMode: ThemeMode.system,
       home: SortComparisonPage(),
     );
   }
@@ -42,6 +50,19 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
   bool _isSorting = false;
   bool _cancelSorting = false;
   int _duration = 1;
+  int _totalElements = 500;
+
+  // Variables to store sorting times
+  Map<String, Duration> _sortingTimes = {
+    'Bubble Sort': Duration.zero,
+    'Quick Sort': Duration.zero,
+    'Selection Sort': Duration.zero,
+    'Insertion Sort': Duration.zero,
+    'Merge Sort': Duration.zero,
+    'Heap Sort': Duration.zero,
+    'Lazy Stable Sort': Duration.zero,
+    'Radix Sort': Duration.zero,
+  };
 
   @override
   void initState() {
@@ -50,7 +71,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
   }
 
   void _generateRandomNumbers() {
-    _bubbleSortNumbers = List.generate(500, (index) => index + 1)..shuffle();
+    _bubbleSortNumbers = List.generate(_totalElements, (index) => index + 1)..shuffle();
     _quickSortNumbers = List.from(_bubbleSortNumbers);
     _selectionSortNumbers = List.from(_bubbleSortNumbers);
     _insertionSortNumbers = List.from(_bubbleSortNumbers);
@@ -68,14 +89,14 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
     });
 
     final sortTasks = [
-      bubbleSort(_bubbleSortNumbers, _duration, (updated) => setState(() => _bubbleSortNumbers = updated)),
-      quickSort(_quickSortNumbers, 0, _quickSortNumbers.length - 1, _duration, (updated) => setState(() => _quickSortNumbers = updated)),
-      selectionSort(_selectionSortNumbers, _duration, (updated) => setState(() => _selectionSortNumbers = updated)),
-      insertionSort(_insertionSortNumbers, _duration, (updated) => setState(() => _insertionSortNumbers = updated)),
-      mergeSort(_mergeSortNumbers, (updated) => setState(() => _mergeSortNumbers = updated), _duration),
-      heapSort(_heapSortNumbers, _duration, (updated) => setState(() => _heapSortNumbers = updated)),
-      lazyStableSort(_lazyStableSortNumbers, _duration, (updated) => setState(() => _lazyStableSortNumbers = updated)),
-      radixSort(_radixSortNumbers, _duration, (updated) => setState(() => _radixSortNumbers = updated)),
+      _measureSortTime('Bubble Sort', () => bubbleSort(_bubbleSortNumbers, _duration, (updated) => setState(() => _bubbleSortNumbers = updated))),
+      _measureSortTime('Quick Sort', () => quickSort(_quickSortNumbers, 0, _quickSortNumbers.length - 1, _duration, (updated) => setState(() => _quickSortNumbers = updated))),
+      _measureSortTime('Selection Sort', () => selectionSort(_selectionSortNumbers, _duration, (updated) => setState(() => _selectionSortNumbers = updated))),
+      _measureSortTime('Insertion Sort', () => insertionSort(_insertionSortNumbers, _duration, (updated) => setState(() => _insertionSortNumbers = updated))),
+      _measureSortTime('Merge Sort', () => mergeSort(_mergeSortNumbers, (updated) => setState(() => _mergeSortNumbers = updated), _duration)),
+      _measureSortTime('Heap Sort', () => heapSort(_heapSortNumbers, _duration, (updated) => setState(() => _heapSortNumbers = updated))),
+      _measureSortTime('Lazy Stable Sort', () => lazyStableSort(_lazyStableSortNumbers, _duration, (updated) => setState(() => _lazyStableSortNumbers = updated))),
+      _measureSortTime('Radix Sort', () => radixSort(_radixSortNumbers, _duration, (updated) => setState(() => _radixSortNumbers = updated))),
     ];
 
     await Future.wait(sortTasks);
@@ -85,6 +106,15 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
         _isSorting = false;
       });
     }
+  }
+
+  Future<void> _measureSortTime(String algorithmName, Future<void> Function() sortFunction) async {
+    final stopWatch = Stopwatch()..start();
+    await sortFunction();
+    stopWatch.stop();
+    setState(() {
+      _sortingTimes[algorithmName] = stopWatch.elapsed;
+    });
   }
 
   void _handlePlayButtonPress() {
@@ -108,7 +138,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sort Comparison'),
+        title: Text('Sort Comparison | Total: $_totalElements | Delay: ${_duration * 1000}ms'),
         actions: [
           IconButton(
             icon: Icon(Icons.shuffle),
@@ -122,6 +152,16 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
               });
             },
           ),
+          IconButton(
+            icon: Icon(Icons.brightness_6),
+            onPressed: () {
+              ThemeMode currentMode = Theme.of(context).brightness == Brightness.dark ? ThemeMode.light : ThemeMode.dark;
+              setState(() {
+                // Toggle the theme
+                ThemeMode themeMode = currentMode;
+              });
+            },
+          ),
         ],
       ),
       body: Column(
@@ -129,234 +169,37 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
           Expanded(
             child: Row(
               children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(0),
-                          child: Text('Bubble Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.only(right: 0),
-                            child: CustomPaint(
-                              painter: BarPainter(_bubbleSortNumbers),
-                              child: Container(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 20,
-                  color: Colors.black,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(0),
-                          child: Text('Quick Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.only(left: 0),
-                            child: CustomPaint(
-                              painter: BarPainter(_quickSortNumbers),
-                              child: Container(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                _buildSortColumn('Bubble Sort', _bubbleSortNumbers, _sortingTimes['Bubble Sort']!),
+                _buildSortColumn('Quick Sort', _quickSortNumbers, _sortingTimes['Quick Sort']!),
               ],
             ),
           ),
-          Container(
-            height: 20,
-            color: Colors.black,
-          ),
+          _buildDivider(height: 20),
           Expanded(
             child: Row(
               children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(0),
-                          child: Text('Selection Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.only(right: 0),
-                            child: CustomPaint(
-                              painter: BarPainter(_selectionSortNumbers),
-                              child: Container(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 20,
-                  color: Colors.black,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(0),
-                          child: Text('Insertion Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.only(left: 0),
-                            child: CustomPaint(
-                              painter: BarPainter(_insertionSortNumbers),
-                              child: Container(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                _buildSortColumn('Selection Sort', _selectionSortNumbers, _sortingTimes['Selection Sort']!),
+                _buildSortColumn('Insertion Sort', _insertionSortNumbers, _sortingTimes['Insertion Sort']!),
               ],
             ),
           ),
-          Container(
-            height: 20,
-            color: Colors.black,
-          ),
+          _buildDivider(height: 20),
           Expanded(
             child: Row(
               children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(0),
-                          child: Text('Merge Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.only(right: 0),
-                            child: CustomPaint(
-                              painter: BarPainter(_mergeSortNumbers),
-                              child: Container(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 20,
-                  color: Colors.black,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(0),
-                          child: Text('Heap Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.only(left: 0),
-                            child: CustomPaint(
-                              painter: BarPainter(_heapSortNumbers),
-                              child: Container(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                _buildSortColumn('Merge Sort', _mergeSortNumbers, _sortingTimes['Merge Sort']!),
+                _buildSortColumn('Heap Sort', _heapSortNumbers, _sortingTimes['Heap Sort']!),
               ],
             ),
           ),
-          Container(
-            height: 20,
-            color: Colors.black,
-          ),
+          _buildDivider(height: 20),
           Expanded(
             child: Row(
               children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(0),
-                          child: Text('Lazy Stable Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.only(right: 0),
-                            child: CustomPaint(
-                              painter: BarPainter(_lazyStableSortNumbers),
-                              child: Container(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 20,
-                  color: Colors.black,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(30.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(0),
-                          child: Text('Radix Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                        ),
-                        Expanded(
-                          child: Container(
-                            padding: EdgeInsets.only(left: 0),
-                            child: CustomPaint(
-                              painter: BarPainter(_radixSortNumbers),
-                              child: Container(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                _buildSortColumn('Lazy Stable Sort', _lazyStableSortNumbers, _sortingTimes['Lazy Stable Sort']!),
+                _buildSortColumn('Radix Sort', _radixSortNumbers, _sortingTimes['Radix Sort']!),
               ],
             ),
-          ),
-          Container(
-            height: 20,
-            color: Colors.black,
           ),
         ],
       ),
@@ -369,17 +212,33 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
         child: Icon(_isSorting ? Icons.restart_alt : Icons.play_arrow),
         tooltip: _isSorting ? 'Stop Sorting' : 'Start Sorting',
       ),
-      persistentFooterButtons: [
-        ElevatedButton.icon(
-          onPressed: _isSorting ? () {
-            setState(() {
-              _cancelSorting = true;
-            });
-          } : _handleRestartOrShuffleButtonPress,
-          icon: Icon(_isSorting ? Icons.stop : Icons.shuffle),
-          label: Text(_isSorting ? 'Stop Sorting' : 'Shuffle Numbers'),
+    );
+  }
+
+  Widget _buildSortColumn(String title, List<int> numbers, Duration time) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text('$title\nTime: ${time.inMilliseconds} ms', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Expanded(
+              child: CustomPaint(
+                painter: BarPainter(numbers),
+                child: Container(),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _buildDivider({double height = 20}) {
+    return Container(
+      width: height,
+      color: Colors.black,
     );
   }
 }
