@@ -71,14 +71,15 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
   }
 
   void _generateRandomNumbers() {
-    _bubbleSortNumbers = List.generate(_totalElements, (index) => index + 1)..shuffle();
-    _quickSortNumbers = List.from(_bubbleSortNumbers);
-    _selectionSortNumbers = List.from(_bubbleSortNumbers);
-    _insertionSortNumbers = List.from(_bubbleSortNumbers);
-    _heapSortNumbers = List.from(_bubbleSortNumbers);
-    _mergeSortNumbers = List.from(_bubbleSortNumbers);
-    _lazyStableSortNumbers = List.from(_bubbleSortNumbers);
-    _radixSortNumbers = List.from(_bubbleSortNumbers);
+    final numbers = List.generate(_totalElements, (index) => index + 1)..shuffle();
+    _bubbleSortNumbers = List.from(numbers);
+    _quickSortNumbers = List.from(numbers);
+    _selectionSortNumbers = List.from(numbers);
+    _insertionSortNumbers = List.from(numbers);
+    _heapSortNumbers = List.from(numbers);
+    _mergeSortNumbers = List.from(numbers);
+    _lazyStableSortNumbers = List.from(numbers);
+    _radixSortNumbers = List.from(numbers);
     setState(() {});
   }
 
@@ -221,7 +222,11 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text('$title\nTime: ${time.inMilliseconds} ms', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              '$title\nTime: ${(time.inMilliseconds / 1000).toStringAsFixed(2)} s',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 10),
             Expanded(
               child: CustomPaint(
