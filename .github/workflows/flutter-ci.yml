@@ -10,14 +10,14 @@ on:
 
 jobs:
   build-web:
-    runs-on: ubuntu-latest # For Web builds
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Flutter
-        uses: subosito/flutter-action@v3
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.13.0" # Update to your Flutter version
 
@@ -27,15 +27,21 @@ jobs:
       - name: Build Web
         run: flutter build web --release
 
+      - name: Upload Web Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: web-build
+          path: build/web
+
   build-windows:
-    runs-on: windows-latest # For Windows builds
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Flutter
-        uses: subosito/flutter-action@v3
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.13.0" # Update to your Flutter version
 
@@ -45,15 +51,21 @@ jobs:
       - name: Build Windows
         run: flutter build windows --release
 
+      - name: Upload Windows Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-build
+          path: build/windows
+
   build-linux:
-    runs-on: ubuntu-latest # For Linux builds
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Flutter
-        uses: subosito/flutter-action@v3
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.13.0" # Update to your Flutter version
 
@@ -62,3 +74,9 @@ jobs:
 
       - name: Build Linux
         run: flutter build linux --release
+
+      - name: Upload Linux Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-build
+          path: build/linux
