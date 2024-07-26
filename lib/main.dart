@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'sortAlgorithms/bubble_sort.dart';
+import 'sortAlgorithms/insertion_sort.dart';
+import 'sortAlgorithms/quick_sort.dart';
+import 'sortAlgorithms/selection_sort.dart';
+
 
 void main() {
   runApp(SortComparisonApp());
@@ -26,6 +30,8 @@ class SortComparisonPage extends StatefulWidget {
 class _SortComparisonPageState extends State<SortComparisonPage> {
   List<int> _bubbleSortNumbers = [];
   List<int> _quickSortNumbers = [];
+  List<int> _selectionSortNumbers = [];
+  List<int> _insertionSortNumbers = [];
   bool _isSorting = false;
   bool _cancelSorting = false;
   int _duration = 1;
@@ -39,84 +45,37 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
   void _generateRandomNumbers() {
     _bubbleSortNumbers = List.generate(100, (index) => index + 1)..shuffle();
     _quickSortNumbers = List.from(_bubbleSortNumbers);
+    _selectionSortNumbers = List.from(_bubbleSortNumbers);
+    _insertionSortNumbers = List.from(_bubbleSortNumbers);
     setState(() {});
   }
 
-  Future<void> _bubbleSort() async {
+  Future<void> _startSorting() async {
     setState(() {
       _isSorting = true;
       _cancelSorting = false;
     });
 
-    for (int i = 0; i < _bubbleSortNumbers.length - 1; i++) {
-      if (_cancelSorting) {
-        setState(() {
-          _isSorting = false;
-          _cancelSorting = false;
-        });
-        return;
-      }
-      for (int j = 0; j < _bubbleSortNumbers.length - i - 1; j++) {
-        if (_cancelSorting) {
-          setState(() {
-            _isSorting = false;
-            _cancelSorting = false;
-          });
-          return;
-        }
-        if (_bubbleSortNumbers[j] > _bubbleSortNumbers[j + 1]) {
-          int temp = _bubbleSortNumbers[j];
-          _bubbleSortNumbers[j] = _bubbleSortNumbers[j + 1];
-          _bubbleSortNumbers[j + 1] = temp;
-          setState(() {});
-          await Future.delayed(Duration(milliseconds: _duration));
-        }
-      }
+    final sortTasks = [
+      bubbleSort(_bubbleSortNumbers, _duration, (updated) => setState(() => _bubbleSortNumbers = updated)),
+      quickSort(_quickSortNumbers, 0, _quickSortNumbers.length - 1, _duration, (updated) => setState(() => _quickSortNumbers = updated)),
+      selectionSort(_selectionSortNumbers, _duration, (updated) => setState(() => _selectionSortNumbers = updated)),
+      insertionSort(_insertionSortNumbers, _duration, (updated) => setState(() => _insertionSortNumbers = updated)),
+    ];
+
+    await Future.wait(sortTasks);
+
+    if (!_cancelSorting) {
+      setState(() {
+        _isSorting = false;
+      });
     }
-
-    setState(() {
-      _isSorting = false;
-    });
-  }
-
-  Future<void> _quickSort(List<int> numbers, int low, int high) async {
-    if (low < high) {
-      int pi = await _partition(numbers, low, high);
-      await _quickSort(numbers, low, pi - 1);
-      await _quickSort(numbers, pi + 1, high);
-      setState(() {});
-    }
-  }
-
-  Future<int> _partition(List<int> numbers, int low, int high) async {
-    int pivot = numbers[high];
-    int i = low - 1;
-
-    for (int j = low; j < high; j++) {
-      if (numbers[j] < pivot) {
-        i++;
-        int temp = numbers[i];
-        numbers[i] = numbers[j];
-        numbers[j] = temp;
-        setState(() {});
-        await Future.delayed(Duration(milliseconds: _duration));
-      }
-    }
-
-    int temp = numbers[i + 1];
-    numbers[i + 1] = numbers[high];
-    numbers[high] = temp;
-    setState(() {});
-    await Future.delayed(Duration(milliseconds: _duration));
-
-    return i + 1;
   }
 
   void _handlePlayButtonPress() {
     if (!_isSorting) {
       _cancelSorting = false;
-      _bubbleSort();
-      _quickSort(_quickSortNumbers, 0, _quickSortNumbers.length - 1);
+      _startSorting();
     }
   }
 
@@ -150,33 +109,115 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
           ),
         ],
       ),
-      body: Row(
+      body: Column(
         children: [
           Expanded(
-            child: Column(
+            child: Row(
               children: [
-                Text('Bubble Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 Expanded(
-                  child: CustomPaint(
-                    painter: BarPainter(_bubbleSortNumbers),
-                    child: Container(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(0),
+                          child: Text('Bubble Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(right: 0), // Ensure space for separator
+                            child: CustomPaint(
+                              painter: BarPainter(_bubbleSortNumbers),
+                              child: Container(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 20,
+                  color: Colors.black,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(0),
+                          child: Text('Quick Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(left: 0), // Ensure space for separator
+                            child: CustomPaint(
+                              painter: BarPainter(_quickSortNumbers),
+                              child: Container(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
           Container(
-            width: 20, // Separator width increased to 30
+            height: 20,
             color: Colors.black,
           ),
           Expanded(
-            child: Column(
+            child: Row(
               children: [
-                Text('Quick Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 Expanded(
-                  child: CustomPaint(
-                    painter: BarPainter(_quickSortNumbers),
-                    child: Container(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(0),
+                          child: Text('Selection Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(right: 0), // Ensure space for separator
+                            child: CustomPaint(
+                              painter: BarPainter(_selectionSortNumbers),
+                              child: Container(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 20,
+                  color: Colors.black,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(0),
+                          child: Text('Insertion Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(left: 0), // Ensure space for separator
+                            child: CustomPaint(
+                              painter: BarPainter(_insertionSortNumbers),
+                              child: Container(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
