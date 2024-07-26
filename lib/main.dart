@@ -5,6 +5,8 @@ import 'sortAlgorithms/quick_sort.dart';
 import 'sortAlgorithms/selection_sort.dart';
 import 'sortAlgorithms/merge_sort.dart';
 import 'sortAlgorithms/heap_sort.dart';
+import 'sortAlgorithms/lazy_stable_sort.dart';
+import 'sortAlgorithms/radix_sort_lsd.dart';
 
 void main() {
   runApp(SortComparisonApp());
@@ -35,6 +37,8 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
   List<int> _insertionSortNumbers = [];
   List<int> _heapSortNumbers = [];
   List<int> _mergeSortNumbers = [];
+  List<int> _lazyStableSortNumbers = [];
+  List<int> _radixSortNumbers = [];
   bool _isSorting = false;
   bool _cancelSorting = false;
   int _duration = 1;
@@ -46,12 +50,14 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
   }
 
   void _generateRandomNumbers() {
-    _bubbleSortNumbers = List.generate(100, (index) => index + 1)..shuffle();
+    _bubbleSortNumbers = List.generate(500, (index) => index + 1)..shuffle();
     _quickSortNumbers = List.from(_bubbleSortNumbers);
     _selectionSortNumbers = List.from(_bubbleSortNumbers);
     _insertionSortNumbers = List.from(_bubbleSortNumbers);
-    _mergeSortNumbers = List.from(_bubbleSortNumbers);
     _heapSortNumbers = List.from(_bubbleSortNumbers);
+    _mergeSortNumbers = List.from(_bubbleSortNumbers);
+    _lazyStableSortNumbers = List.from(_bubbleSortNumbers);
+    _radixSortNumbers = List.from(_bubbleSortNumbers);
     setState(() {});
   }
 
@@ -66,8 +72,10 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
       quickSort(_quickSortNumbers, 0, _quickSortNumbers.length - 1, _duration, (updated) => setState(() => _quickSortNumbers = updated)),
       selectionSort(_selectionSortNumbers, _duration, (updated) => setState(() => _selectionSortNumbers = updated)),
       insertionSort(_insertionSortNumbers, _duration, (updated) => setState(() => _insertionSortNumbers = updated)),
-      heapSort(_heapSortNumbers, _duration, (updated) => setState(() => _heapSortNumbers = updated)),
       mergeSort(_mergeSortNumbers, (updated) => setState(() => _mergeSortNumbers = updated), _duration),
+      heapSort(_heapSortNumbers, _duration, (updated) => setState(() => _heapSortNumbers = updated)),
+      lazyStableSort(_lazyStableSortNumbers, _duration, (updated) => setState(() => _lazyStableSortNumbers = updated)),
+      radixSort(_radixSortNumbers, _duration, (updated) => setState(() => _radixSortNumbers = updated)),
     ];
 
     await Future.wait(sortTasks);
@@ -110,7 +118,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
             icon: Icon(Icons.speed),
             onPressed: _isSorting ? null : () {
               setState(() {
-                _duration = _duration == 1 ? 100 : 1;
+                _duration = _duration == 1 ? 2 : 1;
               });
             },
           ),
@@ -132,7 +140,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
                         ),
                         Expanded(
                           child: Container(
-                            padding: EdgeInsets.only(right: 0), // Ensure space for separator
+                            padding: EdgeInsets.only(right: 0),
                             child: CustomPaint(
                               painter: BarPainter(_bubbleSortNumbers),
                               child: Container(),
@@ -158,7 +166,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
                         ),
                         Expanded(
                           child: Container(
-                            padding: EdgeInsets.only(left: 0), // Ensure space for separator
+                            padding: EdgeInsets.only(left: 0),
                             child: CustomPaint(
                               painter: BarPainter(_quickSortNumbers),
                               child: Container(),
@@ -190,7 +198,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
                         ),
                         Expanded(
                           child: Container(
-                            padding: EdgeInsets.only(right: 0), // Ensure space for separator
+                            padding: EdgeInsets.only(right: 0),
                             child: CustomPaint(
                               painter: BarPainter(_selectionSortNumbers),
                               child: Container(),
@@ -216,7 +224,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
                         ),
                         Expanded(
                           child: Container(
-                            padding: EdgeInsets.only(left: 0), // Ensure space for separator
+                            padding: EdgeInsets.only(left: 0),
                             child: CustomPaint(
                               painter: BarPainter(_insertionSortNumbers),
                               child: Container(),
@@ -248,7 +256,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
                         ),
                         Expanded(
                           child: Container(
-                            padding: EdgeInsets.only(right: 0), // Ensure space for separator
+                            padding: EdgeInsets.only(right: 0),
                             child: CustomPaint(
                               painter: BarPainter(_mergeSortNumbers),
                               child: Container(),
@@ -274,9 +282,67 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
                         ),
                         Expanded(
                           child: Container(
-                            padding: EdgeInsets.only(left: 0), // Ensure space for separator
+                            padding: EdgeInsets.only(left: 0),
                             child: CustomPaint(
                               painter: BarPainter(_heapSortNumbers),
+                              child: Container(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 20,
+            color: Colors.black,
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(0),
+                          child: Text('Lazy Stable Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(right: 0),
+                            child: CustomPaint(
+                              painter: BarPainter(_lazyStableSortNumbers),
+                              child: Container(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 20,
+                  color: Colors.black,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(0),
+                          child: Text('Radix Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(left: 0),
+                            child: CustomPaint(
+                              painter: BarPainter(_radixSortNumbers),
                               child: Container(),
                             ),
                           ),
