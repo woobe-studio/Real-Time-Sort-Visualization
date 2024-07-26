@@ -1,0 +1,64 @@
+name: Build Flutter App
+
+on:
+  push:
+    branches:
+      - main # Adjust to the branch you want to build on
+  pull_request:
+    branches:
+      - main # Adjust to the branch you want to build on
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest # For Web builds
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v3
+        with:
+          flutter-version: "3.13.0" # Update to your Flutter version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Web
+        run: flutter build web --release
+
+  build-windows:
+    runs-on: windows-latest # For Windows builds
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v3
+        with:
+          flutter-version: "3.13.0" # Update to your Flutter version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+  build-linux:
+    runs-on: ubuntu-latest # For Linux builds
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v3
+        with:
+          flutter-version: "3.13.0" # Update to your Flutter version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Linux
+        run: flutter build linux --release
