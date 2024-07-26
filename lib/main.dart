@@ -6,7 +6,6 @@ import 'sortAlgorithms/selection_sort.dart';
 import 'sortAlgorithms/merge_sort.dart';
 import 'sortAlgorithms/heap_sort.dart';
 
-
 void main() {
   runApp(SortComparisonApp());
 }
@@ -296,13 +295,21 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _handlePlayButtonPress,
+        onPressed: _isSorting ? () {
+          setState(() {
+            _cancelSorting = true;
+          });
+        } : _handlePlayButtonPress,
         child: Icon(_isSorting ? Icons.restart_alt : Icons.play_arrow),
-        tooltip: _isSorting ? 'Restart Sorting' : 'Start Sorting',
+        tooltip: _isSorting ? 'Stop Sorting' : 'Start Sorting',
       ),
       persistentFooterButtons: [
         ElevatedButton.icon(
-          onPressed: _handleRestartOrShuffleButtonPress,
+          onPressed: _isSorting ? () {
+            setState(() {
+              _cancelSorting = true;
+            });
+          } : _handleRestartOrShuffleButtonPress,
           icon: Icon(_isSorting ? Icons.stop : Icons.shuffle),
           label: Text(_isSorting ? 'Stop Sorting' : 'Shuffle Numbers'),
         ),
