@@ -9,8 +9,6 @@ import 'sortAlgorithms/lazy_stable_sort.dart';
 import 'sortAlgorithms/radix_sort_lsd.dart';
 import 'sortAlgorithms/gnome_sort.dart';
 import 'sortAlgorithms/cocktail_shaker_sort.dart';
-import 'sortAlgorithms/bucket_sort.dart';
-import 'sortAlgorithms/counting_sort.dart';
 
 void main() {
   runApp(SortComparisonApp());
@@ -53,8 +51,6 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
   List<int> _radixSortNumbers = [];
   List<int> _gnomeSortNumbers = [];
   List<int> _cocktailShakerSortNumbers = [];
-  List<int> _bucketSortNumbers = [];
-  List<int> _countingSortNumbers = [];
   bool _isSorting = false;
   bool _cancelSorting = false;
   int _duration = 50; // Default to milliseconds
@@ -62,7 +58,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
 
   // Controllers for editable fields
   final TextEditingController _totalElementsController = TextEditingController(text: '100');
-  final TextEditingController _delayController = TextEditingController(text: '50');
+  final TextEditingController _delayController = TextEditingController(text: '5');
 
   // Variables to store sorting times
   Map<String, Duration> _sortingTimes = {
@@ -76,8 +72,6 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
     'Radix Sort': Duration.zero,
     'Gnome Sort': Duration.zero,
     'Cocktail Shaker Sort': Duration.zero,
-    'Bucket Sort': Duration.zero,
-    'Counting Sort': Duration.zero,
   };
 
   // Manage ThemeMode
@@ -101,8 +95,6 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
     _radixSortNumbers = List.from(numbers);
     _gnomeSortNumbers = List.from(numbers);
     _cocktailShakerSortNumbers = List.from(numbers);
-    _bucketSortNumbers = List.from(numbers);
-    _countingSortNumbers = List.from(numbers);
     setState(() {});
   }
 
@@ -123,8 +115,6 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
       _measureSortTime('Radix Sort', () => radixSort(_radixSortNumbers, _duration, (updated) => setState(() => _radixSortNumbers = updated))),
       _measureSortTime('Gnome Sort', () => gnomeSort(_gnomeSortNumbers, _duration, (updated) => setState(() => _gnomeSortNumbers = updated))),
       _measureSortTime('Cocktail Shaker Sort', () => cocktailShakerSort(_cocktailShakerSortNumbers, _duration, (updated) => setState(() => _cocktailShakerSortNumbers = updated))),
-      _measureSortTime('Bucket Sort', () => bucketSort(_bucketSortNumbers, _duration, (updated) => setState(() => _bucketSortNumbers = updated))),
-      _measureSortTime('Counting Sort', () => countingSort(_countingSortNumbers, _duration, (updated) => setState(() => _countingSortNumbers = updated))),
     ];
 
     await Future.wait(sortTasks);
@@ -148,8 +138,8 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
   void _handlePlayButtonPress() {
     if (!_isSorting) {
       setState(() {
-        _totalElements = int.tryParse(_totalElementsController.text) ?? 500;
-        _duration = int.tryParse(_delayController.text) ?? 1000; // Default to milliseconds
+        _totalElements = int.tryParse(_totalElementsController.text) ?? 100;
+        _duration = int.tryParse(_delayController.text) ?? 50; // Default to milliseconds
         _generateRandomNumbers(); // Generate numbers based on new values
       });
       _cancelSorting = false;
@@ -159,10 +149,10 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
 
   void _handleRefreshPage() {
     setState(() {
-      _totalElementsController.text = '500';
-      _delayController.text = '1000'; // Default to milliseconds
-      _totalElements = 500;
-      _duration = 1000;
+      _totalElementsController.text = '100';
+      _delayController.text = '50'; // Default to milliseconds
+      _totalElements = 100;
+      _duration = 50;
       _generateRandomNumbers(); // Reset the numbers
       _isSorting = false; // Ensure sorting is stopped
     });
@@ -182,125 +172,105 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Sort Comparison',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        brightness: Brightness.light,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      themeMode: _themeMode,
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Sort Comparison | Total: $_totalElements | Delay: ${_duration}ms'),
-          actions: [
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Sort Comparison | Total: $_totalElements | Delay: ${_duration}ms'),
+        actions: [
+          if (!_isSorting) // Only show the restart button when not sorting
             IconButton(
               icon: Icon(Icons.refresh),
               onPressed: _handleRefreshPage,
             ),
-            IconButton(
-              icon: Icon(Icons.brightness_6),
-              onPressed: _handleThemeToggle,
-            ),
-          ],
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _totalElementsController,
-                      decoration: InputDecoration(
-                        labelText: 'Total Elements',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                      onSubmitted: (_) => _handlePlayButtonPress(),
+          IconButton(
+            icon: Icon(Icons.brightness_6),
+            onPressed: _handleThemeToggle,
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _totalElementsController,
+                    decoration: InputDecoration(
+                      labelText: 'Total Elements',
+                      border: OutlineInputBorder(),
                     ),
+                    keyboardType: TextInputType.number,
+                    onSubmitted: (_) => _handlePlayButtonPress(),
                   ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: TextField(
-                      controller: _delayController,
-                      decoration: InputDecoration(
-                        labelText: 'Delay (ms)',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                      onSubmitted: (_) => _handlePlayButtonPress(),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: TextField(
+                    controller: _delayController,
+                    decoration: InputDecoration(
+                      labelText: 'Delay (ms)',
+                      border: OutlineInputBorder(),
                     ),
+                    keyboardType: TextInputType.number,
+                    onSubmitted: (_) => _handlePlayButtonPress(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Expanded(
-              child: Row(
-                children: [
-                  _buildSortColumn('Bubble Sort', _bubbleSortNumbers, _sortingTimes['Bubble Sort']!),
-                  _buildSortColumn('Quick Sort', _quickSortNumbers, _sortingTimes['Quick Sort']!),
-                ],
-              ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                _buildSortColumn('Bubble Sort', _bubbleSortNumbers, _sortingTimes['Bubble Sort']!),
+                _buildSortColumn('Quick Sort', _quickSortNumbers, _sortingTimes['Quick Sort']!),
+              ],
             ),
-            _buildDivider(height: 20),
-            Expanded(
-              child: Row(
-                children: [
-                  _buildSortColumn('Selection Sort', _selectionSortNumbers, _sortingTimes['Selection Sort']!),
-                  _buildSortColumn('Insertion Sort', _insertionSortNumbers, _sortingTimes['Insertion Sort']!),
-                ],
-              ),
+          ),
+          _buildDivider(height: 20),
+          Expanded(
+            child: Row(
+              children: [
+                _buildSortColumn('Selection Sort', _selectionSortNumbers, _sortingTimes['Selection Sort']!),
+                _buildSortColumn('Insertion Sort', _insertionSortNumbers, _sortingTimes['Insertion Sort']!),
+              ],
             ),
-            _buildDivider(height: 20),
-            Expanded(
-              child: Row(
-                children: [
-                  _buildSortColumn('Merge Sort', _mergeSortNumbers, _sortingTimes['Merge Sort']!),
-                  _buildSortColumn('Heap Sort', _heapSortNumbers, _sortingTimes['Heap Sort']!),
-                ],
-              ),
+          ),
+          _buildDivider(height: 20),
+          Expanded(
+            child: Row(
+              children: [
+                _buildSortColumn('Merge Sort', _mergeSortNumbers, _sortingTimes['Merge Sort']!),
+                _buildSortColumn('Heap Sort', _heapSortNumbers, _sortingTimes['Heap Sort']!),
+              ],
             ),
-            _buildDivider(height: 20),
-            Expanded(
-              child: Row(
-                children: [
-                  _buildSortColumn('Lazy Stable Sort', _lazyStableSortNumbers, _sortingTimes['Lazy Stable Sort']!),
-                  _buildSortColumn('Radix Sort', _radixSortNumbers, _sortingTimes['Radix Sort']!),
-                ],
-              ),
+          ),
+          _buildDivider(height: 20),
+          Expanded(
+            child: Row(
+              children: [
+                _buildSortColumn('Lazy Stable Sort', _lazyStableSortNumbers, _sortingTimes['Lazy Stable Sort']!),
+                _buildSortColumn('Radix Sort', _radixSortNumbers, _sortingTimes['Radix Sort']!),
+              ],
             ),
-            _buildDivider(height: 20),
-            Expanded(
-              child: Row(
-                children: [
-                  _buildSortColumn('Gnome Sort', _gnomeSortNumbers, _sortingTimes['Gnome Sort']!),
-                  _buildSortColumn('Cocktail Shaker Sort', _cocktailShakerSortNumbers, _sortingTimes['Cocktail Shaker Sort']!),
-                ],
-              ),
+          ),
+          _buildDivider(height: 20),
+          Expanded(
+            child: Row(
+              children: [
+                _buildSortColumn('Gnome Sort', _gnomeSortNumbers, _sortingTimes['Gnome Sort']!),
+                _buildSortColumn('Cocktail Shaker Sort', _cocktailShakerSortNumbers, _sortingTimes['Cocktail Shaker Sort']!),
+              ],
             ),
-            _buildDivider(height: 20),
-            Expanded(
-              child: Row(
-                children: [
-                  _buildSortColumn('Bucket Sort', _bucketSortNumbers, _sortingTimes['Bucket Sort']!),
-                  _buildSortColumn('Counting Sort', _countingSortNumbers, _sortingTimes['Counting Sort']!),
-                ],
-              ),
-            ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _handlePlayButtonPress,
-          child: Icon(_isSorting ? Icons.stop : Icons.play_arrow),
-          tooltip: _isSorting ? 'Stop Sorting' : 'Start Sorting',
-        ),
+          ),
+        ],
+      ),
+      floatingActionButton: _isSorting
+          ? null // Hide button when sorting
+          : FloatingActionButton(
+        onPressed: _handlePlayButtonPress,
+        child: Icon(Icons.play_arrow),
+        tooltip: 'Start Sorting',
       ),
     );
   }
