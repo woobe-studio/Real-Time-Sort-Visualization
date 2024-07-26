@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:math';
 
 void main() {
   runApp(SortComparisonApp());
@@ -152,18 +151,35 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
         ],
       ),
       body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
-            child: CustomPaint(
-              painter: BarPainter(_bubbleSortNumbers),
-              child: Container(),
+            child: Column(
+              children: [
+                Text('Bubble Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Expanded(
+                  child: CustomPaint(
+                    painter: BarPainter(_bubbleSortNumbers),
+                    child: Container(),
+                  ),
+                ),
+              ],
             ),
           ),
+          Container(
+            width: 10, // Adjust the width of the separator here
+            color: Colors.black,
+          ),
           Expanded(
-            child: CustomPaint(
-              painter: BarPainter(_quickSortNumbers),
-              child: Container(),
+            child: Column(
+              children: [
+                Text('Quick Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Expanded(
+                  child: CustomPaint(
+                    painter: BarPainter(_quickSortNumbers),
+                    child: Container(),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
