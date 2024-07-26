@@ -3,6 +3,8 @@ import 'sortAlgorithms/bubble_sort.dart';
 import 'sortAlgorithms/insertion_sort.dart';
 import 'sortAlgorithms/quick_sort.dart';
 import 'sortAlgorithms/selection_sort.dart';
+import 'sortAlgorithms/merge_sort.dart';
+import 'sortAlgorithms/heap_sort.dart';
 
 
 void main() {
@@ -32,6 +34,8 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
   List<int> _quickSortNumbers = [];
   List<int> _selectionSortNumbers = [];
   List<int> _insertionSortNumbers = [];
+  List<int> _heapSortNumbers = [];
+  List<int> _mergeSortNumbers = [];
   bool _isSorting = false;
   bool _cancelSorting = false;
   int _duration = 1;
@@ -47,6 +51,8 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
     _quickSortNumbers = List.from(_bubbleSortNumbers);
     _selectionSortNumbers = List.from(_bubbleSortNumbers);
     _insertionSortNumbers = List.from(_bubbleSortNumbers);
+    _mergeSortNumbers = List.from(_bubbleSortNumbers);
+    _heapSortNumbers = List.from(_bubbleSortNumbers);
     setState(() {});
   }
 
@@ -61,6 +67,8 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
       quickSort(_quickSortNumbers, 0, _quickSortNumbers.length - 1, _duration, (updated) => setState(() => _quickSortNumbers = updated)),
       selectionSort(_selectionSortNumbers, _duration, (updated) => setState(() => _selectionSortNumbers = updated)),
       insertionSort(_insertionSortNumbers, _duration, (updated) => setState(() => _insertionSortNumbers = updated)),
+      heapSort(_heapSortNumbers, _duration, (updated) => setState(() => _heapSortNumbers = updated)),
+      mergeSort(_mergeSortNumbers, (updated) => setState(() => _mergeSortNumbers = updated), _duration),
     ];
 
     await Future.wait(sortTasks);
@@ -222,6 +230,68 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
                 ),
               ],
             ),
+          ),
+          Container(
+            height: 20,
+            color: Colors.black,
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(0),
+                          child: Text('Merge Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(right: 0), // Ensure space for separator
+                            child: CustomPaint(
+                              painter: BarPainter(_mergeSortNumbers),
+                              child: Container(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 20,
+                  color: Colors.black,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(0),
+                          child: Text('Heap Sort', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(left: 0), // Ensure space for separator
+                            child: CustomPaint(
+                              painter: BarPainter(_heapSortNumbers),
+                              child: Container(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 20,
+            color: Colors.black,
           ),
         ],
       ),
