@@ -7,12 +7,12 @@ Future<void> radixSort(List<int> numbers, int delayMs, Function(List<int>) updat
   int exp = 1;
 
   while (max ~/ exp > 0) {
-    await countingSort(numbers, exp, delayMs, update);
+    await _countingSort(numbers, exp, delayMs, update);
     exp *= 10;
   }
 }
 
-Future<void> countingSort(List<int> numbers, int exp, int delayMs, Function(List<int>) update) async {
+Future<void> _countingSort(List<int> numbers, int exp, int delayMs, Function(List<int>) update) async {
   int n = numbers.length;
   List<int> output = List.filled(n, 0);
   List<int> count = List.filled(10, 0);
