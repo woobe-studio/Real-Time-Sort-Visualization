@@ -1,37 +1,46 @@
 import 'dart:async';
 
+// Main function to perform Radix Sort
 Future<void> radixSort(List<int> numbers, int delayMs, Function(List<int>) update) async {
   if (numbers.isEmpty) return;
 
+  // Find the maximum number to determine the number of digits
   int max = numbers.reduce((a, b) => a > b ? a : b);
-  int exp = 1;
+  int exp = 1; // Exponent for the digit place
+  int base = 10; // Base for decimal system (0-9)
 
+  // Process each digit
   while (max ~/ exp > 0) {
-    await _countingSort(numbers, exp, delayMs, update);
-    exp *= 10;
+    await _countingSort(numbers, exp, base, delayMs, update);
+    exp *= base;
   }
 }
 
-Future<void> _countingSort(List<int> numbers, int exp, int delayMs, Function(List<int>) update) async {
+// Counting Sort for Radix Sort
+Future<void> _countingSort(List<int> numbers, int exp, int base, int delayMs, Function(List<int>) update) async {
   int n = numbers.length;
   List<int> output = List.filled(n, 0);
-  List<int> count = List.filled(10, 0);
+  List<int> count = List.filled(base, 0);
 
+  // Store count of occurrences in count[]
   for (int i = 0; i < n; i++) {
-    int digit = (numbers[i] ~/ exp) % 10;
-    count[digit]++;
+    int index = (numbers[i] ~/ exp) % base;
+    count[index]++;
   }
 
-  for (int i = 1; i < 10; i++) {
+  // Change count[i] so that count[i] contains the actual position of this digit in output[]
+  for (int i = 1; i < base; i++) {
     count[i] += count[i - 1];
   }
 
+  // Build the output array
   for (int i = n - 1; i >= 0; i--) {
-    int digit = (numbers[i] ~/ exp) % 10;
-    output[count[digit] - 1] = numbers[i];
-    count[digit]--;
+    int index = (numbers[i] ~/ exp) % base;
+    output[count[index] - 1] = numbers[i];
+    count[index]--;
   }
 
+  // Copy the output array to numbers[]
   for (int i = 0; i < n; i++) {
     numbers[i] = output[i];
     update(numbers);

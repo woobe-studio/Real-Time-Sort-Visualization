@@ -13,13 +13,13 @@ Future<int> partition(List<int> numbers, int low, int high, int delayMs, Functio
   int i = low - 1;
 
   for (int j = low; j < high; j++) {
+    await Future.delayed(Duration(milliseconds: delayMs));
     if (numbers[j] < pivot) {
       i++;
       int temp = numbers[i];
       numbers[i] = numbers[j];
       numbers[j] = temp;
       update(numbers);
-      await Future.delayed(Duration(milliseconds: delayMs));
     }
   }
 

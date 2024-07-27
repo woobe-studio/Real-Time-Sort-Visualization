@@ -7,6 +7,8 @@ Future<void> selectionSort(List<int> numbers, int delayMs, Function(List<int>) u
       if (numbers[j] < numbers[minIndex]) {
         minIndex = j;
       }
+      // Delay for visualization
+      await Future.delayed(Duration(milliseconds: delayMs));
     }
     if (minIndex != i) {
       int temp = numbers[i];

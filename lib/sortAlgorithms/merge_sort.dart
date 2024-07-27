@@ -10,6 +10,7 @@ Future<void> _mergeSort(List<int> list, int left, int right, Function(List<int>)
     await _mergeSort(list, left, mid, update, delayMs);
     await _mergeSort(list, mid + 1, right, update, delayMs);
     await _merge(list, left, mid, right, update, delayMs);
+    await Future.delayed(Duration(milliseconds: delayMs)); // Delay after merging
   }
 }
 
@@ -20,6 +21,8 @@ Future<void> _merge(List<int> list, int left, int mid, int right, Function(List<
   List<int> rightList = List.generate(n2, (i) => list[mid + 1 + i]);
 
   int i = 0, j = 0, k = left;
+
+  // Merge the two halves into the original list
   while (i < n1 && j < n2) {
     if (leftList[i] <= rightList[j]) {
       list[k] = leftList[i];
@@ -29,23 +32,25 @@ Future<void> _merge(List<int> list, int left, int mid, int right, Function(List<
       j++;
     }
     k++;
-    update(list);
-    await Future.delayed(Duration(milliseconds: delayMs));
+    update(list); // Update after each merge step
+    await Future.delayed(Duration(milliseconds: delayMs)); // Delay after updating visualization
   }
 
+  // Copy remaining elements of leftList[], if any
   while (i < n1) {
     list[k] = leftList[i];
     i++;
     k++;
-    update(list);
+    update(list); // Update after each insertion from leftList
     await Future.delayed(Duration(milliseconds: delayMs));
   }
 
+  // Copy remaining elements of rightList[], if any
   while (j < n2) {
     list[k] = rightList[j];
     j++;
     k++;
-    update(list);
+    update(list); // Update after each insertion from rightList
     await Future.delayed(Duration(milliseconds: delayMs));
   }
 }

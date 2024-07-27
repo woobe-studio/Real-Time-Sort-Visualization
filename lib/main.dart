@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'sortAlgorithms/bubble_sort.dart';
 import 'sortAlgorithms/insertion_sort.dart';
 import 'sortAlgorithms/quick_sort.dart';
 import 'sortAlgorithms/selection_sort.dart';
@@ -9,6 +8,8 @@ import 'sortAlgorithms/lazy_stable_sort.dart';
 import 'sortAlgorithms/radix_sort_lsd.dart';
 import 'sortAlgorithms/gnome_sort.dart';
 import 'sortAlgorithms/cocktail_shaker_sort.dart';
+import 'sortAlgorithms/tim_sort.dart';
+import 'sortAlgorithms/shell_sort.dart';
 
 void main() {
   runApp(SortComparisonApp());
@@ -41,16 +42,11 @@ class SortComparisonPage extends StatefulWidget {
 }
 
 class _SortComparisonPageState extends State<SortComparisonPage> {
-  List<int> _bubbleSortNumbers = [];
   List<int> _quickSortNumbers = [];
-  List<int> _selectionSortNumbers = [];
-  List<int> _insertionSortNumbers = [];
+  List<int> _shellSortNumbers = [];
   List<int> _heapSortNumbers = [];
   List<int> _mergeSortNumbers = [];
   List<int> _lazyStableSortNumbers = [];
-  List<int> _radixSortNumbers = [];
-  List<int> _gnomeSortNumbers = [];
-  List<int> _cocktailShakerSortNumbers = [];
   bool _isSorting = false;
   bool _cancelSorting = false;
   int _duration = 50; // Default to milliseconds
@@ -62,16 +58,11 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
 
   // Variables to store sorting times
   Map<String, Duration> _sortingTimes = {
-    'Bubble Sort': Duration.zero,
     'Quick Sort': Duration.zero,
-    'Selection Sort': Duration.zero,
-    'Insertion Sort': Duration.zero,
+    'Shell Sort': Duration.zero,
     'Merge Sort': Duration.zero,
     'Heap Sort': Duration.zero,
     'Lazy Stable Sort': Duration.zero,
-    'Radix Sort': Duration.zero,
-    'Gnome Sort': Duration.zero,
-    'Cocktail Shaker Sort': Duration.zero,
   };
 
   // Manage ThemeMode
@@ -85,16 +76,11 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
 
   void _generateRandomNumbers() {
     final numbers = List.generate(_totalElements, (index) => index + 1)..shuffle();
-    _bubbleSortNumbers = List.from(numbers);
     _quickSortNumbers = List.from(numbers);
-    _selectionSortNumbers = List.from(numbers);
-    _insertionSortNumbers = List.from(numbers);
+    _shellSortNumbers = List.from(numbers);
     _heapSortNumbers = List.from(numbers);
     _mergeSortNumbers = List.from(numbers);
     _lazyStableSortNumbers = List.from(numbers);
-    _radixSortNumbers = List.from(numbers);
-    _gnomeSortNumbers = List.from(numbers);
-    _cocktailShakerSortNumbers = List.from(numbers);
     setState(() {});
   }
 
@@ -105,16 +91,20 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
     });
 
     final sortTasks = [
-      _measureSortTime('Bubble Sort', () => bubbleSort(_bubbleSortNumbers, _duration, (updated) => setState(() => _bubbleSortNumbers = updated))),
-      _measureSortTime('Quick Sort', () => quickSort(_quickSortNumbers, 0, _quickSortNumbers.length - 1, _duration, (updated) => setState(() => _quickSortNumbers = updated))),
-      _measureSortTime('Selection Sort', () => selectionSort(_selectionSortNumbers, _duration, (updated) => setState(() => _selectionSortNumbers = updated))),
-      _measureSortTime('Insertion Sort', () => insertionSort(_insertionSortNumbers, _duration, (updated) => setState(() => _insertionSortNumbers = updated))),
-      _measureSortTime('Merge Sort', () => mergeSort(_mergeSortNumbers, (updated) => setState(() => _mergeSortNumbers = updated), _duration)),
-      _measureSortTime('Heap Sort', () => heapSort(_heapSortNumbers, _duration, (updated) => setState(() => _heapSortNumbers = updated))),
-      _measureSortTime('Lazy Stable Sort', () => lazyStableSort(_lazyStableSortNumbers, _duration, (updated) => setState(() => _lazyStableSortNumbers = updated))),
-      _measureSortTime('Radix Sort', () => radixSort(_radixSortNumbers, _duration, (updated) => setState(() => _radixSortNumbers = updated))),
-      _measureSortTime('Gnome Sort', () => gnomeSort(_gnomeSortNumbers, _duration, (updated) => setState(() => _gnomeSortNumbers = updated))),
-      _measureSortTime('Cocktail Shaker Sort', () => cocktailShakerSort(_cocktailShakerSortNumbers, _duration, (updated) => setState(() => _cocktailShakerSortNumbers = updated))),
+      _measureSortTime('Quick Sort', () => quickSort(_quickSortNumbers, 0, _quickSortNumbers.length - 1, _duration, (updated) {
+        setState(() => _quickSortNumbers = updated);
+      })),
+    _measureSortTime('Shell Sort', () => shellSort(_shellSortNumbers, _duration, (updated) {setState(() => _shellSortNumbers = updated);}
+    )),
+      _measureSortTime('Merge Sort', () => mergeSort(_mergeSortNumbers, (updated) {
+        setState(() => _mergeSortNumbers = updated);
+      }, _duration)),
+      _measureSortTime('Heap Sort', () => heapSort(_heapSortNumbers, _duration, (updated) {
+        setState(() => _heapSortNumbers = updated);
+      })),
+      _measureSortTime('Lazy Stable Sort', () => lazyStableSort(_lazyStableSortNumbers, _duration, (updated) {
+        setState(() => _lazyStableSortNumbers = updated);
+      })),
     ];
 
     await Future.wait(sortTasks);
@@ -134,7 +124,6 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
       _sortingTimes[algorithmName] = stopWatch.elapsed;
     });
   }
-
   void _handlePlayButtonPress() {
     if (!_isSorting) {
       setState(() {
@@ -174,7 +163,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sort Comparison | Total: $_totalElements | Delay: ${_duration}ms'),
+        title: Text('Sort Check | Total: $_totalElements | Delay: ${_duration}ms'),
         actions: [
           if (!_isSorting) // Only show the restart button when not sorting
             IconButton(
@@ -197,7 +186,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
                   child: TextField(
                     controller: _totalElementsController,
                     decoration: InputDecoration(
-                      labelText: 'Total Elements',
+                      labelText: 'Total amount',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
@@ -222,7 +211,6 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
           Expanded(
             child: Row(
               children: [
-                _buildSortColumn('Bubble Sort', _bubbleSortNumbers, _sortingTimes['Bubble Sort']!),
                 _buildSortColumn('Quick Sort', _quickSortNumbers, _sortingTimes['Quick Sort']!),
               ],
             ),
@@ -231,17 +219,8 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
           Expanded(
             child: Row(
               children: [
-                _buildSortColumn('Selection Sort', _selectionSortNumbers, _sortingTimes['Selection Sort']!),
-                _buildSortColumn('Insertion Sort', _insertionSortNumbers, _sortingTimes['Insertion Sort']!),
-              ],
-            ),
-          ),
-          _buildDivider(height: 20),
-          Expanded(
-            child: Row(
-              children: [
+                _buildSortColumn('Shell Sort', _shellSortNumbers, _sortingTimes['Shell Sort']!),
                 _buildSortColumn('Merge Sort', _mergeSortNumbers, _sortingTimes['Merge Sort']!),
-                _buildSortColumn('Heap Sort', _heapSortNumbers, _sortingTimes['Heap Sort']!),
               ],
             ),
           ),
@@ -250,16 +229,7 @@ class _SortComparisonPageState extends State<SortComparisonPage> {
             child: Row(
               children: [
                 _buildSortColumn('Lazy Stable Sort', _lazyStableSortNumbers, _sortingTimes['Lazy Stable Sort']!),
-                _buildSortColumn('Radix Sort', _radixSortNumbers, _sortingTimes['Radix Sort']!),
-              ],
-            ),
-          ),
-          _buildDivider(height: 20),
-          Expanded(
-            child: Row(
-              children: [
-                _buildSortColumn('Gnome Sort', _gnomeSortNumbers, _sortingTimes['Gnome Sort']!),
-                _buildSortColumn('Cocktail Shaker Sort', _cocktailShakerSortNumbers, _sortingTimes['Cocktail Shaker Sort']!),
+                _buildSortColumn('Heap Sort', _heapSortNumbers, _sortingTimes['Heap Sort']!),
               ],
             ),
           ),

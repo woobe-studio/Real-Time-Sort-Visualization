@@ -17,8 +17,14 @@ Future<void> _mergeSort(List<int> numbers, int left, int right, int delayMs, Fun
     await _mergeSort(numbers, left, mid, delayMs, update);
     await _mergeSort(numbers, mid + 1, right, delayMs, update);
 
+    // Apply delay after sorting the halves
+    await Future.delayed(Duration(milliseconds: delayMs));
+
     // Merge the sorted halves
     await merge(numbers, left, mid, right, delayMs, update);
+
+    // Apply delay after merging
+    await Future.delayed(Duration(milliseconds: delayMs));
   }
 }
 
@@ -37,17 +43,22 @@ Future<void> merge(List<int> numbers, int left, int mid, int right, int delayMs,
     } else {
       numbers[k++] = rightArray[j++];
     }
+    // Update and apply delay for each merge step
+    update(numbers);
+    await Future.delayed(Duration(milliseconds: delayMs));
   }
 
   // Copy remaining elements
   while (i < leftArray.length) {
     numbers[k++] = leftArray[i++];
+    // Update and apply delay for each copy step
+    update(numbers);
+    await Future.delayed(Duration(milliseconds: delayMs));
   }
   while (j < rightArray.length) {
     numbers[k++] = rightArray[j++];
+    // Update and apply delay for each copy step
+    update(numbers);
+    await Future.delayed(Duration(milliseconds: delayMs));
   }
-
-  // Update the UI or print the current state
-  update(numbers);
-  await Future.delayed(Duration(milliseconds: delayMs));
 }
