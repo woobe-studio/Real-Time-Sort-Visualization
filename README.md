@@ -16,7 +16,7 @@ If you need further details or have specific requirements, feel free to ask!
 
 ### 🏠 Visualization View:
 
-<img src="git_images/showcase.png" width="800">
+<img src="git_images/showcase.webp" width="800">
 
 </div>
 
